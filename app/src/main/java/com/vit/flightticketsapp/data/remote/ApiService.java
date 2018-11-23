@@ -12,7 +12,7 @@ import retrofit2.http.Query;
 public interface ApiService {
 
     @GET("airline-tickets.php")
-    Single<List<Ticket>> searchTickets(@Query("from") String from,
+    Single<List<Ticket>> getTickets(@Query("from") String from,
                                        @Query("to") String to);
 
     @GET("airline-tickets-price.php")

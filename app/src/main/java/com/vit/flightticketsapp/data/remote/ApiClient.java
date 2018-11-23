@@ -19,15 +19,18 @@ public class ApiClient {
     private static int REQUEST_TIMEOUT = 60;
     private static OkHttpClient okHttpClient;
 
+    public static ApiService getTicketService() {
+        return getClient(BASE_URL).create(ApiService.class);
+    }
 
-    public static Retrofit getClient() {
+    public static Retrofit getClient(String baseUrl) {
 
         if (okHttpClient == null)
             initOkHttp();
 
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(baseUrl)
                     .client(okHttpClient)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
