@@ -54,6 +54,5 @@ dependencies {
     // Animations
     implementation 'com.github.ybq:Android-SpinKit:1.2.0'
 
-    implementation "com.google.guava:guava:27.0-android"
 
 }

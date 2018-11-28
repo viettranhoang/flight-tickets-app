@@ -22,7 +22,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketViewHolder> {
 
@@ -39,8 +38,17 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
         notifyDataSetChanged();
     }
 
+    public void setItemPosition(int position, Ticket ticket) {
+        mTickets.set(position, ticket);
+        notifyDataSetChanged();
+    }
+
     private void setList(List<Ticket> tickets) {
-        mTickets = checkNotNull(tickets);
+        mTickets = (tickets);
+    }
+
+    public List<Ticket> getList() {
+        return mTickets;
     }
 
     @NonNull

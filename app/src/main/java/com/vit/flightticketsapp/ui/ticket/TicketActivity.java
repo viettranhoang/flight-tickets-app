@@ -1,5 +1,6 @@
 package com.vit.flightticketsapp.ui.ticket;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,12 +14,16 @@ import com.vit.flightticketsapp.ui.base.BaseActivity;
 import com.vit.flightticketsapp.ui.ticket.adapter.TicketAdapter;
 import com.vit.flightticketsapp.ui.ticket.listener.OnClickTicketItemListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
+
 
 public class TicketActivity extends BaseActivity implements TicketContract.View, OnClickTicketItemListener {
 
-    private static final String from = "DEL";
-    private static final String to = "HYD";
+    private static final String FROM = "DEL";
+    private static final String TO = "HYD";
 
     @BindView(R.id.list_ticket)
     RecyclerView mRcvTicket;
@@ -28,6 +33,8 @@ public class TicketActivity extends BaseActivity implements TicketContract.View,
 
     private TicketAdapter mAdapter;
 
+    private TicketContract.Presenter mPresenter;
+
     @Override
     protected int getLayoutId() {
         return R.layout.ticket_activity;
@@ -36,25 +43,40 @@ public class TicketActivity extends BaseActivity implements TicketContract.View,
     @Override
     protected void initView() {
         initToolbar();
+        initRcv();
+
+        new TicketPresenter(this);
+        mPresenter.loadTickets(FROM, TO);
     }
 
     @Override
-    public void setPresenter(TicketContract.Presenter presenter) {
-
+    protected void onResume() {
+        super.onResume();
     }
 
-    private void initToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(from + " > " + to);
+    @Override
+    public void onPause() {
+        super.onPause();
+        mPresenter.unsubscribe();
     }
 
-    private void initRcv() {
-        mRcvTicket.setLayoutManager(new LinearLayoutManager(this));
-        mRcvTicket.setHasFixedSize(true);
-        mRcvTicket.setItemAnimator(new DefaultItemAnimator());
-        mRcvTicket.setAdapter(mAdapter);
+    @Override
+    public void setPresenter(@NonNull TicketContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public void showTickets(List<Ticket> tickets) {
+        mAdapter.replaceData(tickets);
+    }
+
+    @Override
+    public void showTicketPrice(Ticket ticket) {
+        int position = mAdapter.getList().indexOf(ticket);
+
+        if (position != -1) {
+            mAdapter.setItemPosition(position, ticket);
+        }
     }
 
     @Override
@@ -67,5 +89,20 @@ public class TicketActivity extends BaseActivity implements TicketContract.View,
     @Override
     public void onClickTicketItem(Ticket ticket) {
         showToast(ticket.getAirline().getName());
+    }
+
+    private void initToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(FROM + " > " + TO);
+    }
+
+    private void initRcv() {
+        mAdapter = new TicketAdapter(new ArrayList<Ticket>(0), this);
+        mRcvTicket.setLayoutManager(new LinearLayoutManager(this));
+        mRcvTicket.setHasFixedSize(true);
+        mRcvTicket.setItemAnimator(new DefaultItemAnimator());
+        mRcvTicket.setAdapter(mAdapter);
     }
 }
