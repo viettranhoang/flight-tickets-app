@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.vit.flightticketsapp.R;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 
 public class TicketActivity extends BaseActivity implements TicketContract.View, OnClickTicketItemListener {
@@ -30,6 +32,9 @@ public class TicketActivity extends BaseActivity implements TicketContract.View,
 
     @BindView(R.id.layout_root)
     LinearLayout mLayoutRoot;
+
+    @BindView(R.id.input_search)
+    EditText mInputSearch;
 
     private TicketAdapter mAdapter;
 
@@ -52,6 +57,7 @@ public class TicketActivity extends BaseActivity implements TicketContract.View,
     @Override
     protected void onResume() {
         super.onResume();
+        mPresenter.loadTickets(FROM, TO);
     }
 
     @Override
@@ -67,7 +73,7 @@ public class TicketActivity extends BaseActivity implements TicketContract.View,
 
     @Override
     public void showTickets(List<Ticket> tickets) {
-        mAdapter.replaceData(tickets);
+        mAdapter.setList(tickets);
     }
 
     @Override
@@ -77,6 +83,11 @@ public class TicketActivity extends BaseActivity implements TicketContract.View,
         if (position != -1) {
             mAdapter.setItemPosition(position, ticket);
         }
+    }
+
+    @Override
+    public void showTicketSearch(String text) {
+        mAdapter.filter(text);
     }
 
     @Override
@@ -91,6 +102,11 @@ public class TicketActivity extends BaseActivity implements TicketContract.View,
         showToast(ticket.getAirline().getName());
     }
 
+    @OnClick(R.id.input_search)
+    void onClickSearch() {
+        mPresenter.searchTickets(mInputSearch.getText().toString(), mInputSearch);
+    }
+
     private void initToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -99,7 +115,7 @@ public class TicketActivity extends BaseActivity implements TicketContract.View,
     }
 
     private void initRcv() {
-        mAdapter = new TicketAdapter(new ArrayList<Ticket>(0), this);
+        mAdapter = new TicketAdapter(new ArrayList<>(0), this);
         mRcvTicket.setLayoutManager(new LinearLayoutManager(this));
         mRcvTicket.setHasFixedSize(true);
         mRcvTicket.setItemAnimator(new DefaultItemAnimator());

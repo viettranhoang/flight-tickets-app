@@ -1,5 +1,6 @@
 package com.vit.flightticketsapp.data.remote;
 
+import com.vit.flightticketsapp.data.model.Contact;
 import com.vit.flightticketsapp.data.model.Price;
 import com.vit.flightticketsapp.data.model.Ticket;
 
@@ -20,4 +21,7 @@ public interface ApiService {
                            @Query("from") String from,
                            @Query("to") String to);
 
+    @GET("contacts.php")
+    Single<List<Contact>> getContacts(@Query("source") String source,
+                                      @Query("search") String query);
 }

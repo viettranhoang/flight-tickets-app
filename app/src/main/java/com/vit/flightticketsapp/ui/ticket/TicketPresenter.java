@@ -1,12 +1,16 @@
 package com.vit.flightticketsapp.ui.ticket;
 
 import android.support.annotation.NonNull;
+import android.widget.EditText;
 
+import com.jakewharton.rxbinding2.widget.RxTextView;
+import com.jakewharton.rxbinding2.widget.TextViewTextChangeEvent;
 import com.vit.flightticketsapp.data.model.Price;
 import com.vit.flightticketsapp.data.model.Ticket;
 import com.vit.flightticketsapp.data.remote.ApiClient;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -19,6 +23,8 @@ import io.reactivex.schedulers.Schedulers;
 
 
 public class TicketPresenter implements TicketContract.Presenter {
+
+    private static final String TAG = TicketPresenter.class.getSimpleName();
 
     @NonNull
     private final TicketContract.View mTicketsView;
@@ -122,6 +128,33 @@ public class TicketPresenter implements TicketContract.Presenter {
         // Calling connect to start emission
         ticketsObservable.connect();
 
+    }
+
+    @Override
+    public void searchTickets(String keyword, EditText input) {
+
+        mCompositeDisposable.add(RxTextView.textChangeEvents(input)
+                .skipInitialValue()
+                .debounce(300, TimeUnit.MILLISECONDS)
+                .distinctUntilChanged()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<TextViewTextChangeEvent>() {
+                    @Override
+                    public void onNext(TextViewTextChangeEvent textViewTextChangeEvent) {
+                        mTicketsView.showTicketSearch(textViewTextChangeEvent.text().toString());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        mTicketsView.showError(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                }));
     }
 
     /**

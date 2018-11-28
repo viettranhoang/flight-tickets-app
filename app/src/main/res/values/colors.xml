@@ -9,4 +9,6 @@
     <color name="tint_arrow">#6E6E6E</color>
     <color name="duration">#dd595959</color>
 
+    <color name="contact_name">#333333</color>
+    <color name="contact_number">#8c8c8c</color>
 </resources>

@@ -21,11 +21,13 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import io.reactivex.Observable;
 
 
-public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketViewHolder> {
+public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketViewHolder>{
 
     private List<Ticket> mTickets = new ArrayList<>();
+    private List<Ticket> mTicketsRoot = new ArrayList<>();
     private OnClickTicketItemListener mListener;
 
     public TicketAdapter(List<Ticket> tickets, OnClickTicketItemListener listener) {
@@ -33,22 +35,28 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
         this.mListener = listener;
     }
 
-    public void replaceData(List<Ticket> tickets) {
-        setList(tickets);
-        notifyDataSetChanged();
-    }
-
     public void setItemPosition(int position, Ticket ticket) {
         mTickets.set(position, ticket);
         notifyDataSetChanged();
     }
 
-    private void setList(List<Ticket> tickets) {
+    public void setList(List<Ticket> tickets) {
         mTickets = (tickets);
+        notifyDataSetChanged();
+        mTicketsRoot = mTickets;
     }
 
     public List<Ticket> getList() {
         return mTickets;
+    }
+
+    public void filter(String text) {
+        List<Ticket> tickets = Observable.fromIterable(mTicketsRoot)
+                .filter(ticket -> (ticket.getAirline().getName().toLowerCase().contains(text.toLowerCase())))
+                .toList()
+                .blockingGet();
+        mTickets = (tickets);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -67,7 +75,6 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
     public int getItemCount() {
         return mTickets.size();
     }
-
 
     class TicketViewHolder extends BaseViewHolder<Ticket> {
 
@@ -123,7 +130,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
 
             if (ticket.getPrice() != null) {
                 mTextPrice.setText(String.format("$%.0f", ticket.getPrice().getPrice()));
-                mTextSeats.setText(String.format(" Seats", ticket.getPrice().getSeats()));
+                mTextSeats.setText(String.format("%s Seats", ticket.getPrice().getSeats()));
                 mSpinLoader.setVisibility(View.INVISIBLE);
             } else {
                 mSpinLoader.setVisibility(View.VISIBLE);
