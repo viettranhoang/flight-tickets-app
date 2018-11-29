@@ -1,6 +1,7 @@
 package com.vit.flightticketsapp.ui.ticket;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.EditText;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
@@ -131,7 +132,7 @@ public class TicketPresenter implements TicketContract.Presenter {
     }
 
     @Override
-    public void searchTickets(String keyword, EditText input) {
+    public void searchTickets(EditText input) {
 
         mCompositeDisposable.add(RxTextView.textChangeEvents(input)
                 .skipInitialValue()
@@ -142,6 +143,7 @@ public class TicketPresenter implements TicketContract.Presenter {
                 .subscribeWith(new DisposableObserver<TextViewTextChangeEvent>() {
                     @Override
                     public void onNext(TextViewTextChangeEvent textViewTextChangeEvent) {
+                        Log.i(TAG, "onNext: " + textViewTextChangeEvent.text().toString());
                         mTicketsView.showTicketSearch(textViewTextChangeEvent.text().toString());
                     }
 

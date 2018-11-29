@@ -25,6 +25,6 @@ public interface TicketContract {
 
         void loadTickets(String from, String to);
 
-        void searchTickets(String keyword, EditText input);
+        void searchTickets(EditText input);
     }
 }

@@ -6,12 +6,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.vit.flightticketsapp.R;
 import com.vit.flightticketsapp.data.model.Ticket;
 import com.vit.flightticketsapp.ui.base.BaseActivity;
+import com.vit.flightticketsapp.ui.contact.ContactActivity;
 import com.vit.flightticketsapp.ui.ticket.adapter.TicketAdapter;
 import com.vit.flightticketsapp.ui.ticket.listener.OnClickTicketItemListener;
 
@@ -19,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.OnClick;
 
 
 public class TicketActivity extends BaseActivity implements TicketContract.View, OnClickTicketItemListener {
@@ -52,6 +54,9 @@ public class TicketActivity extends BaseActivity implements TicketContract.View,
 
         new TicketPresenter(this);
         mPresenter.loadTickets(FROM, TO);
+        mPresenter.searchTickets(mInputSearch);
+
+
     }
 
     @Override
@@ -102,15 +107,25 @@ public class TicketActivity extends BaseActivity implements TicketContract.View,
         showToast(ticket.getAirline().getName());
     }
 
-    @OnClick(R.id.input_search)
-    void onClickSearch() {
-        mPresenter.searchTickets(mInputSearch.getText().toString(), mInputSearch);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.ticket_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_contact) {
+            ContactActivity.start(this);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void initToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setTitle(FROM + " > " + TO);
     }
 
