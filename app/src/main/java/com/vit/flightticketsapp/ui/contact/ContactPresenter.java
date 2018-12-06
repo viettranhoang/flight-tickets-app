@@ -1,17 +1,15 @@
 package com.vit.flightticketsapp.ui.contact;
 
+import android.app.Application;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.vit.flightticketsapp.data.model.Contact;
-import com.vit.flightticketsapp.data.remote.ApiClient;
+import com.vit.flightticketsapp.data.repository.ContactRepository;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
@@ -27,16 +25,20 @@ public class ContactPresenter implements ContactContract.Presenter {
 
     private PublishSubject<String> mPublishSubject;
 
-    public ContactPresenter(@NonNull ContactContract.View ticketsView) {
+    private ContactRepository mContactRepository;
+
+    public ContactPresenter(@NonNull ContactContract.View ticketsView, Application application) {
         this.mContactsView = ticketsView;
 
         mCompositeDisposable = new CompositeDisposable();
         mContactsView.setPresenter(this);
+        mContactRepository = new ContactRepository(application);
     }
 
 
     @Override
     public void subscribe() {
+        loadContacts();
     }
 
     @Override
@@ -54,30 +56,27 @@ public class ContactPresenter implements ContactContract.Presenter {
                     .map(text -> text.trim())
                     .distinctUntilChanged()
                     .filter(text -> !TextUtils.isEmpty(text))
-                    .switchMapSingle(text ->
-                            ApiClient.getTicketService().getContacts(null, text)
+                    .switchMap(text ->
+                            mContactRepository.searchContacts(text)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread()))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(new DisposableObserver<List<Contact>>() {
-                        @Override
-                        public void onNext(List<Contact> contacts) {
-                            mContactsView.showContacts(contacts);
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            mContactsView.showError(e);
-                        }
-
-                        @Override
-                        public void onComplete() {
-
-                        }
-                    }));
+                    .subscribe(contacts -> mContactsView.showContacts(contacts),
+                            throwable -> mContactsView.showError(throwable))
+            );
         }
 
         mPublishSubject.onNext(keyword);
+    }
+
+    @Override
+    public void loadContacts() {
+        mCompositeDisposable.add(mContactRepository.getContacts()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(contacts -> mContactsView.showContacts(contacts),
+                        throwable -> mContactsView.showError(throwable))
+        );
     }
 }

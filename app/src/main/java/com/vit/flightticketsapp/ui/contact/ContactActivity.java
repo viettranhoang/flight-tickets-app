@@ -21,7 +21,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnTextChanged;
 
-public class ContactActivity extends BaseActivity implements ContactContract.View{
+public class ContactActivity extends BaseActivity implements ContactContract.View {
 
     protected static final String TAG = ContactActivity.class.getSimpleName();
 
@@ -53,7 +53,13 @@ public class ContactActivity extends BaseActivity implements ContactContract.Vie
         initToolbar();
         initRcv();
 
-        new ContactPresenter(this);
+        new ContactPresenter(this, getApplication());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mPresenter.subscribe();
     }
 
     @Override
@@ -83,6 +89,8 @@ public class ContactActivity extends BaseActivity implements ContactContract.Vie
     void onClickSearch() {
         mPresenter.searchContacts(mInputSearch.getText().toString());
     }
+
+
 
     private void initToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);

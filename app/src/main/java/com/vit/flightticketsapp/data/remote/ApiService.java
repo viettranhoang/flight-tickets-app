@@ -23,5 +23,5 @@ public interface ApiService {
 
     @GET("contacts.php")
     Single<List<Contact>> getContacts(@Query("source") String source,
-                                      @Query("search") String query);
+                                        @Query("search") String query);
 }

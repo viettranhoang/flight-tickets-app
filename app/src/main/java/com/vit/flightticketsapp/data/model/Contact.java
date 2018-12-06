@@ -1,15 +1,37 @@
 package com.vit.flightticketsapp.data.model;
 
-import com.google.gson.annotations.SerializedName;
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
+import com.google.gson.annotations.SerializedName;
+import com.vit.flightticketsapp.data.local.DBConstants;
+
+@Entity(tableName = DBConstants.Contact.TABLE_NAME)
 public class Contact {
-    String name;
+
+    @ColumnInfo(name = DBConstants.Contact.COLUMN_NAME)
+    private String name;
 
     @SerializedName("image")
-    String profileImage;
+    @ColumnInfo(name = DBConstants.Contact.COLUMN_PROFILEIMAGE)
+    private String profileImage;
 
-    String phone;
-    String email;
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = DBConstants.Contact.COLUMN_PHONE)
+    private String phone;
+
+    @ColumnInfo(name = DBConstants.Contact.COLUMN_EMAIL)
+    private String email;
+
+    public Contact(String name, String profileImage, String phone, String email) {
+        this.name = name;
+        this.profileImage = profileImage;
+        this.phone = phone;
+        this.email = email;
+    }
 
     public String getName() {
         return name;
